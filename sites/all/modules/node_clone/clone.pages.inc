@@ -219,7 +219,7 @@ function _clone_node_prepare($original_node, $prefix_title = FALSE, $account = N
   $node->path = NULL;
   $node->files = array();
   if ($prefix_title) {
-    $node->title = t('Clone of !title', array('!title' => $node->title));
+    $node->title = t('!title', array('!title' => $node->title));
   }
   // Add an extra property as a flag.
   $node->clone_from_original_nid = $original_node->nid;
