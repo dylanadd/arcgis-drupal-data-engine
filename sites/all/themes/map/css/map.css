@@ -16,4 +16,38 @@ body {
 height: 100% !important;
 }
 
- 
+ .panel {
+    position: fixed;
+    left: -15.625em; /*left or right and the width of your navigation panel*/
+    width: 15.625em; /*should match the above value*/
+}
+
+#menu{
+  background: rgba(0,40,75,0.95);
+  z-index: 40;
+}
+
+#menu li a.option{
+color:white;
+}
+
+
+
+
+.menu-link{
+  position: absolute;
+  z-index: 100;
+  top: 32px;
+  color:white;
+
+}
+
+.menu-link-wrap{
+  position: absolute;
+  left: 16.56em;
+}
+
+a, a:focus {
+  text-decoration: none;
+  outline: 0 !important;
+}
