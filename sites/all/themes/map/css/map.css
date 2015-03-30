@@ -1,0 +1,19 @@
+ #map{
+ height: 100% !important;
+ width: 100% !important;    
+     position: absolute;
+ }
+
+html{
+  height: 100%;
+}
+body {
+  min-height: 100%;
+}
+
+.map .container{
+
+height: 100% !important;
+}
+
+ 

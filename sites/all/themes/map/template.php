@@ -34,10 +34,19 @@ function map_preprocess_maintenance_page(&$variables, $hook) {
  * @param $hook
  *   The name of the template being rendered ("html" in this case.)
  */
-/* -- Delete this line if you want to use this function
-function map_preprocess_html(&$variables, $hook) {
-  $variables['sample_variable'] = t('Lorem ipsum.');
 
+
+function map_preprocess_html(&$variables, $hook) {
+ // $variables['sample_variable'] = t('Lorem ipsum.');
+
+    $node = menu_get_object();
+
+  if ($node && $node->nid) {
+    $variables['theme_hook_suggestions'][] = 'html__' . $node->type;
+  }
+    
+ 
+    
   // The body tag's classes are controlled by the $classes_array variable. To
   // remove a class from $classes_array, use array_diff().
   //$variables['classes_array'] = array_diff($variables['classes_array'], array('class-to-remove'));
@@ -52,9 +61,32 @@ function map_preprocess_html(&$variables, $hook) {
  * @param $hook
  *   The name of the template being rendered ("page" in this case.)
  */
-/* -- Delete this line if you want to use this function
+
 function map_preprocess_page(&$variables, $hook) {
   $variables['sample_variable'] = t('Lorem ipsum.');
+    
+    $node = menu_get_object();
+
+  if ($node && $node->nid) {
+    $variables['theme_hook_suggestions'][] = 'page__' . $node->type;
+  }
+    
+   if($node->type == "map"){
+    
+       drupal_add_js(drupal_get_path('theme', 'map') . '/js/jquery-1.11.2.min.js', array('group' => JS_THEME));   
+       drupal_add_js('http://js.arcgis.com/3.13/', array('group' => JS_THEME));   
+         
+       
+       drupal_add_js(drupal_get_path('theme', 'map') . '/js/bigSlide.js', array('group' => JS_THEME));  
+       
+       drupal_add_js(drupal_get_path('theme', 'map') . '/js/map.js', array('group' => JS_THEME));  
+       
+       
+       
+       drupal_add_css(drupal_get_path('theme', 'map') . '/css/esri.css');  
+       drupal_add_css(drupal_get_path('theme', 'map') . '/css/map.css');  
+    }    
+    
 }
 // */
 
