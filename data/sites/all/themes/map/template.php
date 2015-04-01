@@ -70,8 +70,9 @@ function map_preprocess_page(&$variables, $hook) {
   if ($node && $node->nid) {
     $variables['theme_hook_suggestions'][] = 'page__' . $node->type;
   }
+  
     
-   if($node->type == "map"){
+   if($node && $node->type == "map"){
     
        drupal_add_js(drupal_get_path('theme', 'map') . '/js/jquery-1.11.2.min.js', array('group' => JS_THEME));   
        drupal_add_js(drupal_get_path('theme', 'map') . '/js/jquery-ui.min.js', array('group' => JS_THEME));
@@ -87,7 +88,7 @@ function map_preprocess_page(&$variables, $hook) {
        drupal_add_css(drupal_get_path('theme', 'map') . '/css/jquery-ui.min.css'); 
        drupal_add_css(drupal_get_path('theme', 'map') . '/css/map.css');  
     }    
-    
+ 
 }
 // */
 

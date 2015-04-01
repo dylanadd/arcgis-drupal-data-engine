@@ -25,9 +25,10 @@ height: 100% !important;
 #menu{
   background: rgba(0,40,75,0.95);
   z-index: 40;
+    color:white;
 }
 
-#menu li a.option{
+#menu li {
 color:white;
 }
 
@@ -37,17 +38,57 @@ color:white;
 .menu-link{
   position: absolute;
   z-index: 100;
-  top: 32px;
+  font-size: 35px;
+  top: 8px;
+  left: 7px;
   color:white;
 
 }
 
 .menu-link-wrap{
   position: absolute;
-  left: 16.56em;
+  left: 15.625em;
+  background: rgba(0,40,75,0.95);
+  width: 50px;
+  height: 50px;
+  top: 0px;
 }
 
 a, a:focus {
   text-decoration: none;
   outline: 0 !important;
+}
+
+#menu-options{}
+
+.sub-menu{
+  padding-left: 15px;
+/*    width: 209px;*/
+  margin-left: -18px;
+}
+
+h5{
+    font-size: 18px !important;
+    padding-left: 16px;
+    padding-bottom: 5px !important;
+    padding-top:17px !important;
+    margin: 0 !important;
+}
+
+.sub-menu ul{
+    margin: 0 !important;
+}
+
+label{
+    font-weight: normal !important;
+    font-size: 14px;
+}
+
+.category{
+      margin-left: 29px;
+      font-weight: bold;
+      font-size: 15px;
+}
+.filter ul {
+    padding-left: 38px;
 }
