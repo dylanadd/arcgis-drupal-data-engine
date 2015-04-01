@@ -70,9 +70,35 @@ function map_preprocess_page(&$variables, $hook) {
   if ($node && $node->nid) {
     $variables['theme_hook_suggestions'][] = 'page__' . $node->type;
   }
+  
+    $variables['taxonomy_vocab'] = taxonomy_get_vocabularies();
     
-   if($node->type == "map"){
     
+    
+    
+    foreach($variables['taxonomy_vocab'] as $value){
+     //kpr($value);
+     $variables['taxonomy_vids'][] = ['vid'=>$value->vid,'name'=>$value->name];
+    }
+    
+   // kpr($variables['taxonomy_vids']);
+    
+    
+    foreach($variables['taxonomy_vids'] as $key => $value){
+       // kpr($key);
+        //kpr($value);
+        
+        $variables['taxonomy_vids'][$key]['taxonomy'] = taxonomy_get_tree($value['vid']);
+       
+        
+    }
+    
+     kpr($variables['taxonomy_vids']);
+
+   if($node && $node->type == "map"){
+    
+       
+       
        drupal_add_js(drupal_get_path('theme', 'map') . '/js/jquery-1.11.2.min.js', array('group' => JS_THEME));   
        drupal_add_js(drupal_get_path('theme', 'map') . '/js/jquery-ui.min.js', array('group' => JS_THEME));
          
@@ -87,7 +113,7 @@ function map_preprocess_page(&$variables, $hook) {
        drupal_add_css(drupal_get_path('theme', 'map') . '/css/jquery-ui.min.css'); 
        drupal_add_css(drupal_get_path('theme', 'map') . '/css/map.css');  
     }    
-    
+ 
 }
 // */
 
