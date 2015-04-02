@@ -71,6 +71,30 @@ function map_preprocess_page(&$variables, $hook) {
     $variables['theme_hook_suggestions'][] = 'page__' . $node->type;
   }
   
+
+    
+   if($node && $node->type == "map"){
+       $json = _get_taxonomy_json();
+       drupal_add_js('jQuery(document).ready(function () { filterJSON = ' . $json . ';});', 'inline');
+       
+       drupal_add_js(drupal_get_path('theme', 'map') . '/js/jquery-1.11.2.min.js', array('group' => JS_THEME));   
+       drupal_add_js(drupal_get_path('theme', 'map') . '/js/jquery-ui.min.js', array('group' => JS_THEME));
+         
+       
+       drupal_add_js(drupal_get_path('theme', 'map') . '/js/bigSlide.js', array('group' => JS_THEME));  
+       drupal_add_js('http://js.arcgis.com/3.13/', array('group' => JS_THEME));   
+       drupal_add_js(drupal_get_path('theme', 'map') . '/js/map.js', array('group' => JS_THEME));  
+       
+       
+       
+       drupal_add_css(drupal_get_path('theme', 'map') . '/css/esri.css');  
+       drupal_add_css(drupal_get_path('theme', 'map') . '/css/jquery-ui.min.css'); 
+       drupal_add_css(drupal_get_path('theme', 'map') . '/css/map.css');  
+    }    
+ 
+}
+
+function _get_taxonomy_json(){
     $variables['taxonomy_vocab'] = taxonomy_get_vocabularies();
     
     
@@ -93,28 +117,33 @@ function map_preprocess_page(&$variables, $hook) {
         
     }
     
-     kpr($variables['taxonomy_vids']);
-
-   if($node && $node->type == "map"){
+    // kpr($variables['taxonomy_vids']);
     
-       
-       
-       drupal_add_js(drupal_get_path('theme', 'map') . '/js/jquery-1.11.2.min.js', array('group' => JS_THEME));   
-       drupal_add_js(drupal_get_path('theme', 'map') . '/js/jquery-ui.min.js', array('group' => JS_THEME));
-         
-       
-       drupal_add_js(drupal_get_path('theme', 'map') . '/js/bigSlide.js', array('group' => JS_THEME));  
-       drupal_add_js('http://js.arcgis.com/3.13/', array('group' => JS_THEME));   
-       drupal_add_js(drupal_get_path('theme', 'map') . '/js/map.js', array('group' => JS_THEME));  
-       
-       
-       
-       drupal_add_css(drupal_get_path('theme', 'map') . '/css/esri.css');  
-       drupal_add_css(drupal_get_path('theme', 'map') . '/css/jquery-ui.min.css'); 
-       drupal_add_css(drupal_get_path('theme', 'map') . '/css/map.css');  
-    }    
- 
+    
+    foreach($variables['taxonomy_vids'] as $key => $value){
+        
+        foreach($variables['taxonomy_vids'][$key]['taxonomy'] as $key2 => $value2){
+           // kpr($value2);
+            
+            if($value2->depth == 0){
+                $variables['taxonomy_vids'][$key]['taxonomy_tree'][$value2->name]->parentname = $value2->name;
+                $variables['taxonomy_vids'][$key]['taxonomy_tree'][$value2->name]->children = taxonomy_get_children($value2->tid);
+                        
+                
+            } 
+
+            
+        }
+    
+    }
+   // kpr($variables['taxonomy_vids']);
+   // kpr(json_encode($variables['taxonomy_vids']));
+    $json = json_encode($variables['taxonomy_vids']);
+    
+    return $json;
 }
+
+
 // */
 
 /**

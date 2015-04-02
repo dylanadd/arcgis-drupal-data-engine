@@ -1,3 +1,10 @@
+        Object.size = function(obj) {
+            var size = 0, key;
+            for (key in obj) {
+                if (obj.hasOwnProperty(key)) size++;
+            }
+            return size;
+        };
 
       var app = {};
 
@@ -25,18 +32,64 @@
         app.countyLayer = new FeatureLayer('http://maps.co.pueblo.co.us/outside/rest/services/internal_map_services/pueblo_county_counties_zipcodes_municipalities/MapServer/1',{mode: FeatureLayer.MODE_SNAPSHOT});  
         
           
-        app.map.addLayer(app.countyLayer);
+        app.map.addLayer(app.zipCodeLayer);
       }); // End of map script
 
 
 
-
+    var menu = "";
 
     $(document).ready(function() {
+        
+        loadFilters();
+        
         $('.menu-link').bigSlide();
      
         $('.map-layers input').click(layerToggle);
+        
+        $('.filter input').click(queryDocuments);
     });
+
+
+
+
+
+
+    function queryDocuments(){
+        
+        var inputs = $('.filter input').get();
+        var termURL = "/json";
+        $.each(inputs, function(index,value){
+            
+            if(value.checked){
+            
+                termURL += '/' + value.className;
+            
+            }
+            
+            
+         
+        
+        });
+        var data;
+         $.ajax({
+             url: termURL,
+             async: true,
+             dataType: "json"
+            }).done(function(res){
+              
+                console.log(res);
+                data = $.parseJSON(res);
+             console.log(data);
+            });
+        
+       // this.set(data);
+    }
+
+
+
+
+
 
     function layerToggle(){
         
@@ -44,8 +97,9 @@
         try{app.map.removeLayer(app.municipalitiesLayer);}catch(e){}
         try{app.map.removeLayer(app.countyLayer);}catch(e){}
         
-         console.log($('.map-layers input').get());
+     
         var layers = $('.map-layers input').get();
+        
         $.each(layers, function(index,value){
                if(value.checked){
                     switch(value.className){
@@ -62,4 +116,60 @@
                     }
                }
         });
+    }
+
+
+
+
+    function loadFilters(){
+    console.log(filterJSON);
+        $.each(filterJSON, function(index, value){
+             if(value.name != "Location"){
+                  
+                 var hasChildren = false;
+                 var menuNoChildren = "";
+                 $.each(value.taxonomy_tree,function(index2,value2){
+                       
+                  
+                        
+                     if(Object.size(value2.children) > 0){
+                            hasChildren = true;
+                            menu += '<div class="category">By ' + value2.parentname + '</div><ul>';
+
+                            $.each(value2.children,function(index3,value3){
+                              menu += ' <li><label><input type="checkbox" class="' + value3.name + '">' + value3.name + ' </label></li>';
+                            });
+
+                            menu += '</ul>';
+                        
+                     } else {
+                         
+                           
+                            menuNoChildren += ' <li><label><input type="checkbox" class="' + value2.parentname + '">' + value2.parentname + ' </label></li>';
+
+
+                     
+                     
+                     }
+                    
+                     
+                     
+                    });
+                 
+                 if(menuNoChildren != ""){
+                        menu += '<div class="category">By ' + value.name + '</div><ul>';
+                        menu += menuNoChildren;
+                        menu += '</ul>';
+                     }
+                   
+                            
+                            
+                        
+                            
+              }
+        });
+        
+        
+        $('div.sub-menu.filter').append(menu);
+    
     }
