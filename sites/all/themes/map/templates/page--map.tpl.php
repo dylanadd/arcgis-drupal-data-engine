@@ -32,8 +32,15 @@
         <div  class="sub-menu filter">
             
         </div>
-   
+    <h5>Filter Options</h5>
+        <div class="sub-menu optionssub-menu options">
+            <ul>
+                <li><label><input type="radio" name="option" class="match-all" checked="checked">Exact Matches Only</label></li>
+                <li><label><input type="radio" name="option" class="match-one">Partial Matches Allowed</li>
+            </ul>
+        </div>
     </div>
+    
 
 </nav>
 

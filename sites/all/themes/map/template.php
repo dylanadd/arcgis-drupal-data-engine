@@ -127,6 +127,7 @@ function _get_taxonomy_json(){
             
             if($value2->depth == 0){
                 $variables['taxonomy_vids'][$key]['taxonomy_tree'][$value2->name]->parentname = $value2->name;
+                $variables['taxonomy_vids'][$key]['taxonomy_tree'][$value2->name]->parenttid = $value2->tid;
                 $variables['taxonomy_vids'][$key]['taxonomy_tree'][$value2->name]->children = taxonomy_get_children($value2->tid);
                         
                 
