@@ -9,6 +9,8 @@ html{
 }
 body {
   min-height: 100%;
+    overflow: hidden;
+    
 }
 
 .map .container{
@@ -73,6 +75,7 @@ h5{
     padding-bottom: 5px !important;
     padding-top:17px !important;
     margin: 0 !important;
+    
 }
 
 .sub-menu ul{
@@ -93,3 +96,41 @@ label{
 .filter ul {
     padding-left: 38px;
 }
+
+.push.wrap{
+position: absolute;
+  z-index: 100;
+  bottom: 0px;
+  width: 100%;
+  background: white;
+}
+
+.results{
+  position: relative;
+      width: 100%;
+}
+.results h5{
+    outline: 0 !important;
+      color: rgb(0,40,75);
+}
+
+
+.accordion-result-wrapper{
+margin-left: 4px;
+}
+.description{
+    width: 50%;
+  max-width: 50%;
+  float: left;
+}
+.links{
+  width:20%;
+  max-width: 20%;
+  float: left;
+}
+.post-date{
+    width: 20%;
+  max-width: 20%;
+  float: left;
+}
+

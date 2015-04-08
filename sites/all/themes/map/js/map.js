@@ -1,10 +1,10 @@
-        Object.size = function(obj) {
-            var size = 0, key;
-            for (key in obj) {
-                if (obj.hasOwnProperty(key)) size++;
-            }
-            return size;
-        };
+     Object.size = function(obj) {
+        var size = 0, key;
+        for (key in obj) {
+            if (obj.hasOwnProperty(key)) size++;
+        }
+        return size;
+     };
 
       var app = {};
 
@@ -126,7 +126,8 @@
                     if(graphicAddedToMap == false){ //ensures click handler only fires once
                         graphicAddedToMap = true;
                          app.map.graphics.on("click",function(evt){
-                            console.log(evt);
+                            //console.log(evt);
+                            app.map.graphics.disableMouseEvents(); //prevents users from sending multiple ajax requests by double-clicking
                             getDocumentsForDisplay(evt);
                              
                              
@@ -144,13 +145,49 @@
 
 
     function getDocumentsForDisplay(evt){
-      //  console.log(evt);
+       
+            try{ 
+                $(".results").accordion("destroy");
+            }catch(e){}
+        
+            $(".results").empty();
+       
+        
+
         var termURL = makeQueryURLForDocuments(true,evt.graphic.locationID);
         console.log(termURL);
         
         $.get(termURL).then(function(results){
-            console.log(results);
+           // console.log(results);
+            
+            var output = "";
+            $.each(results.nodes,function(index,value){
+                console.log(value);
+                output += '<h5>' + value.node.title + '</h5>'
+                    + '<div class="accordion-result-wrapper">' //wrapper needed for accordion
+                    + '<div class="description">' + value.node.description + '</div>'
+                    + '<div class="post-date">' + value.node.posted + '</div>'
+                    + '<div class="links">';
+                
+                $.each(value.node.files.split(","),function(index2,value2){ //in case of multiple files
+                   
+                    var filetype = value2.substr( (value2.lastIndexOf('.') +1) );
+                    filetype = filetype.toUpperCase();
+                    output += '<div class="file-link"><a href="' + value2 + '" target="_blank">' + filetype + '</a></div>';
+                    
+                });
+                
+                output += '</div>' //end links div
+                       + '</div>'; //end of wrapper
+                
+            });
+            
+            $(".results").append(output);
+            $(".results").accordion({ header: "h5", collapsible: true, active: false });
+           app.map.graphics.enableMouseEvents(); //turn mouse events back on
+           
         });
+        
         
     }
 
