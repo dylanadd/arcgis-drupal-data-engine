@@ -90,6 +90,7 @@
 
 
     function queryDocuments(){
+        hideResultsPanel(); //make sure results disappear when messing with filter options
         app.map.graphics.clear();
 
         var termURL = makeQueryURLForDocuments(false); 
@@ -142,17 +143,26 @@
         
    
     }
+    
 
+    function showResultsPanel(){
+   // $(".results").show();
+    }
+
+    function hideResultsPanel(){
+    // $(".results").hide();
+     
+     try{ 
+        $(".results").accordion("destroy");
+     }catch(e){}
+        
+     $(".results").empty();
+    
+    }
 
     function getDocumentsForDisplay(evt){
        
-            try{ 
-                $(".results").accordion("destroy");
-            }catch(e){}
-        
-            $(".results").empty();
-       
-        
+        hideResultsPanel();
 
         var termURL = makeQueryURLForDocuments(true,evt.graphic.locationID);
         console.log(termURL);
@@ -183,9 +193,9 @@
             });
             
             $(".results").append(output);
-            $(".results").accordion({ header: "h5", collapsible: true, active: false });
+            $(".results").accordion({ header: "h5", collapsible: true, active: false }).show();
            app.map.graphics.enableMouseEvents(); //turn mouse events back on
-           
+           showResultsPanel();
         });
         
         
@@ -264,7 +274,7 @@
 
 
     function layerToggle(){
-        
+        hideResultsPanel();
         try{app.map.removeLayer(app.zipCodeLayer);}catch(e){}
         try{app.map.removeLayer(app.municipalitiesLayer);}catch(e){}
         try{app.map.removeLayer(app.countyLayer);}catch(e){}
