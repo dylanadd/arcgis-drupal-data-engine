@@ -121,7 +121,7 @@ position: absolute;
 */
    
 }
-.results h5{
+.results h5, .results h3{
     outline: 0 !important;
       color: rgb(0,40,75);
     border-top-style: solid;
@@ -129,7 +129,10 @@ position: absolute;
   border-top-color: rgba(0,40,75,0.15);
 }
 
-
+.results h3{
+    margin-top:0 !important;
+      font-size: 19px !important;
+}
 .accordion-result-wrapper{
 margin-left: 4px;
 }
@@ -142,6 +145,7 @@ margin-left: 4px;
   border-right-color: rgba(0,40,75,0.15);
   padding-right: 10px;
     height: 100%;
+      overflow-y: auto;
 }
 .links{
   width:20%;
@@ -176,5 +180,14 @@ h5 span.counter{
   font-size: 13px;
 }
 .result-content{
+
+}
+.results ul{
+  margin: 0.5em 0;
+}
+.year-accordion-result-wrapper::-webkit-scrollbar { 
+  /* This is the magic bit */
+  display: none;
+}
 
 }

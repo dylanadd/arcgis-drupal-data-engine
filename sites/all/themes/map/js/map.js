@@ -170,7 +170,8 @@
      try{ 
         $(".results").accordion("destroy");
      }catch(e){}
-        
+     try{ $(".year-accordion-result-wrapper").accordion("destroy");
+        }catch(e){}
      $(".results").empty();
     
     }
@@ -183,11 +184,99 @@
         console.log(termURL);
         
         $.get(termURL).then(function(results){
-           // console.log(results);
+          //  console.log(results);
+            
+             var year;
+             var sortedResults = {};
+             $.each(results.nodes,function(index,value){
+                if(year == null || year == undefined || year != value.node.year){
+                    year = value.node.year;
+                    if(sortedResults[year] == undefined){
+                        sortedResults[year] = {};
+                    };
+                    
+                }
+                sortedResults[year][index] = value;
+             });
+            
+            
+            
+            
+            
+            
+         if(Object.size(sortedResults) > 1){
+            var yearOutput = "";
+            var resultCount = 0;
+            $.each(sortedResults,function(index,value){
+                yearOutput += '<h3>' + index + '</h3>';
+                yearOutput += '<div class="year-accordion-result-wrapper">';
+                 
+                var output = "";
+            
+                $.each(value,function(index2,value2){
+                   console.log(index2);
+                   console.log(value2);
+                   resultCount++;
+                  
+              //  console.log(value);
+                
+                
+                
+                
+                output += '<h5><span class="title">' + value2.node.title + '</span><span class="counter">' + (resultCount) + ' of ' + results.nodes.length;
+                    
+                if(results.nodes.length == 1){
+                    output += ' Result</span></h5>';
+                } else {
+                    output += ' Results</span></h5>';
+                }
+                
+                output += '<div class="accordion-result-wrapper">' //wrapper needed for accordion
+                    + '<div class="description"><div class="content-title">Description:</div><div class="result-content">' + value2.node.description + '</div></div>'
+                    + '<div class="post-date"><div class="content-title">Date Posted:</div><div class="result-content">' + value2.node.posted + '</div></div>'
+                    + '<div class="links"><div class="content-title">Downloads:</div><div class="result-content"><ul>';
+                
+                $.each(value2.node.files.split(","),function(index3,value3){ //in case of multiple files
+                   
+                    var filetype = value3.substr( (value3.lastIndexOf('.') +1) );
+                    filetype = filetype.toUpperCase();
+                    output += '<li><div class="file-link"><a href="' + value3 + '" target="_blank">' + filetype + '</a></div></li>';
+                    
+                });
+                
+                output += '</ul></div></div>' //end links div
+                       + '</div>'; //end of wrapper
+                
+          
+                   
+                   
+               
+               });
+                yearOutput += output;
+                yearOutput += '</div>'; //end of wrapper
+            }); //end of multi year loop
+            
+            
+            
+            
+           // console.log(yearOutput);
+             $(".results").append(yearOutput);
+             
+            
+             
+             $(".year-accordion-result-wrapper").accordion({ header: "h5", collapsible: true, active: false, fillSpace:true, clearStyle:true });
+              $(".results").accordion({ header: "h3", collapsible: true, active: false }).show();
+             
+        } else {     
             
             var output = "";
+            
             $.each(results.nodes,function(index,value){
-                console.log(value);
+              //  console.log(value);
+                
+                
+                
+                
                 output += '<h5><span class="title">' + value.node.title + '</span><span class="counter">' + (index + 1) + ' of ' + results.nodes.length;
                     
                 if(results.nodes.length == 1){
@@ -199,23 +288,27 @@
                 output += '<div class="accordion-result-wrapper">' //wrapper needed for accordion
                     + '<div class="description"><div class="content-title">Description:</div><div class="result-content">' + value.node.description + '</div></div>'
                     + '<div class="post-date"><div class="content-title">Date Posted:</div><div class="result-content">' + value.node.posted + '</div></div>'
-                    + '<div class="links"><div class="content-title">Downloads:</div><div class="result-content">';
+                    + '<div class="links"><div class="content-title">Downloads:</div><div class="result-content"><ul>';
                 
                 $.each(value.node.files.split(","),function(index2,value2){ //in case of multiple files
                    
                     var filetype = value2.substr( (value2.lastIndexOf('.') +1) );
                     filetype = filetype.toUpperCase();
-                    output += '<div class="file-link"><a href="' + value2 + '" target="_blank">' + filetype + '</a></div>';
+                    output += '<li><div class="file-link"><a href="' + value2 + '" target="_blank">' + filetype + '</a></div></li>';
                     
                 });
                 
-                output += '</div></div>' //end links div
+                output += '</ul></div></div>' //end links div
                        + '</div>'; //end of wrapper
                 
             });
             
             $(".results").append(output);
             $(".results").accordion({ header: "h5", collapsible: true, active: false }).show();
+            
+            
+            
+        }
            app.map.graphics.enableMouseEvents(); //turn mouse events back on
            
            showResultsPanel();
