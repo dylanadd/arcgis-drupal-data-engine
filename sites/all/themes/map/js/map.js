@@ -80,7 +80,7 @@
         
         $('.filter input').click(queryDocuments);
         $('.options input').click(queryDocuments);
-        
+        $('.menu-link').click(showResultsPanel);
 
     });
 
@@ -144,9 +144,24 @@
    
     }
     
+    
+
 
     function showResultsPanel(){
-   // $(".results").show();
+       var bodyWidth = $(window).width();
+        
+        var menuWidth = $("nav#menu").width();
+        
+        console.log( bodyWidth);
+        console.log( menuWidth);
+        if($('nav#menu').hasClass("open")){
+            $(".push.wrap").css("width",(bodyWidth - menuWidth));
+        
+        } else {
+            $(".push.wrap").css("width",bodyWidth );
+        }
+         console.log($(".push.wrap").css("width"));
+       
     }
 
     function hideResultsPanel(){
@@ -173,11 +188,18 @@
             var output = "";
             $.each(results.nodes,function(index,value){
                 console.log(value);
-                output += '<h5>' + value.node.title + '</h5>'
-                    + '<div class="accordion-result-wrapper">' //wrapper needed for accordion
-                    + '<div class="description">' + value.node.description + '</div>'
-                    + '<div class="post-date">' + value.node.posted + '</div>'
-                    + '<div class="links">';
+                output += '<h5><span class="title">' + value.node.title + '</span><span class="counter">' + (index + 1) + ' of ' + results.nodes.length;
+                    
+                if(results.nodes.length == 1){
+                    output += ' Result</span></h5>';
+                } else {
+                    output += ' Results</span></h5>';
+                }
+                
+                output += '<div class="accordion-result-wrapper">' //wrapper needed for accordion
+                    + '<div class="description"><div class="content-title">Description:</div><div class="result-content">' + value.node.description + '</div></div>'
+                    + '<div class="post-date"><div class="content-title">Date Posted:</div><div class="result-content">' + value.node.posted + '</div></div>'
+                    + '<div class="links"><div class="content-title">Downloads:</div><div class="result-content">';
                 
                 $.each(value.node.files.split(","),function(index2,value2){ //in case of multiple files
                    
@@ -187,7 +209,7 @@
                     
                 });
                 
-                output += '</div>' //end links div
+                output += '</div></div>' //end links div
                        + '</div>'; //end of wrapper
                 
             });
@@ -195,6 +217,7 @@
             $(".results").append(output);
             $(".results").accordion({ header: "h5", collapsible: true, active: false }).show();
            app.map.graphics.enableMouseEvents(); //turn mouse events back on
+           
            showResultsPanel();
         });
         

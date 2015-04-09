@@ -34,8 +34,14 @@
       changeState: function(){
         if (model.state === 'closed') {
           model.state = 'open'
+          $('nav#menu').removeClass('closed');
+          $('nav#menu').addClass('open');
+          
         } else {
           model.state = 'closed'
+          $('nav#menu').removeClass('open');
+          $('nav#menu').addClass('closed');
+            
         }
       },
       // check the menu's state
@@ -67,7 +73,24 @@
         // add the css values to position things offscreen
         if (settings.state === 'closed') {
           this.$menu.css(positionOffScreen);
-          this.$push.css(settings.side, '0');
+        //***  this.$push.css(settings.side, '0');
+        var temp = this.$push;
+        $.each(this.$push,function(index,value){
+            if($(value).hasClass("right")  && settings.side.toLowerCase() != "right"){
+               
+               $(value).css("right",  '0');
+            } else {
+                
+               $(value).css(settings.side, '0');
+            }
+        
+
+        });
+            
+            
+            
+            
+            
         }
 
         // css for the sliding animation
@@ -78,11 +101,37 @@
           '-o-transition': settings.side + ' ' + settings.speed + 'ms ease',
           'transition': settings.side + ' ' + settings.speed + 'ms ease'
         };
+        
+        var animateSlideRight = {
+          '-webkit-transition':  'width ' + settings.speed + 'ms ease',
+          '-moz-transition': 'width ' + settings.speed + 'ms ease',
+          '-ms-transition': 'width ' + settings.speed + 'ms ease',
+          '-o-transition': 'width ' + settings.speed + 'ms ease',
+          'transition': 'width ' + settings.speed + 'ms ease'
+        };
 
         // add the animation css
         this.$menu.css(animateSlide);
-        this.$push.css(animateSlide);
+        
+          
+//        this.$push.css(animateSlideRight);
 
+          var temp = this.$push;
+        $.each(this.$push,function(index,value){
+            if($(value).hasClass("right") && settings.side.toLowerCase() != "right"){
+               
+               $(value).css(animateSlideRight);
+            } else {
+                
+               $(value).css(animateSlide);
+            }
+        
+          
+        });
+          
+          
+          
+          
         // register a click listener for desktop & touchstart for mobile
         menuLink.on('click.bigSlide touchstart.bigSlide', function(e) {
           e.preventDefault();
@@ -107,7 +156,21 @@
       toggleOpen: function() {
         controller.changeState();
         this.$menu.css(settings.side, '0');
-        this.$push.css(settings.side, this.width);
+        var temp = this;
+        $.each(this.$push,function(index,value){
+            if($(value).hasClass("right") && settings.side.toLowerCase() != "right"){
+               
+               $(value).css("right",  '0');
+            } else {
+                
+               $(value).css(settings.side, temp.width);
+            }
+        
+            
+        });
+       
+         // this.$push.css(settings.side, this.width);
+          
         menuLink.addClass(settings.activeBtn);
       },
 
@@ -115,7 +178,23 @@
       toggleClose: function() {
         controller.changeState();
         this.$menu.css(settings.side, '-' + this.width);
-        this.$push.css(settings.side, '0');
+       // this.$push.css(settings.side, '0');
+          
+       var temp = this;
+        $.each(this.$push,function(index,value){
+            if($(value).hasClass("right") && settings.side.toLowerCase() != "right"){
+               
+               $(value).css("right",  '0');
+            } else {
+                
+               $(value).css(settings.side, '0');
+            }
+        
+           
+        });   
+          
+          
+          
         menuLink.removeClass(settings.activeBtn);
       }
 

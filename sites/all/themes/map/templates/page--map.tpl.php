@@ -44,7 +44,7 @@
 
 </nav>
 
-<div class="push wrap">
+<div class="push wrap right">
     <div class="results">
 <!--        This is the results panel.-->
     </div>
