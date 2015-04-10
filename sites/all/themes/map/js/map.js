@@ -36,12 +36,13 @@
         esriConfig.defaults.io.alwaysUseProxy = false;
           
           
-        app.zipCodeLayer = new FeatureLayer('http://maps.co.pueblo.co.us/outside/rest/services/internal_map_services/pueblo_county_counties_zipcodes_municipalities/MapServer/2',{mode: FeatureLayer.MODE_SNAPSHOT});
-        app.municipalitiesLayer = new FeatureLayer('http://maps.co.pueblo.co.us/outside/rest/services/internal_map_services/pueblo_county_counties_zipcodes_municipalities/MapServer/0',{mode: FeatureLayer.MODE_SNAPSHOT});  
-        app.countyLayer = new FeatureLayer('http://maps.co.pueblo.co.us/outside/rest/services/internal_map_services/pueblo_county_counties_zipcodes_municipalities/MapServer/1',{mode: FeatureLayer.MODE_SNAPSHOT});  
+      //  app.zipCodeLayer = new FeatureLayer('http://maps.co.pueblo.co.us/outside/rest/services/internal_map_services/pueblo_county_counties_zipcodes_municipalities/MapServer/2',{mode: FeatureLayer.MODE_SNAPSHOT});
+       // app.municipalitiesLayer = new FeatureLayer('http://maps.co.pueblo.co.us/outside/rest/services/internal_map_services/pueblo_county_counties_zipcodes_municipalities/MapServer/0',{mode: FeatureLayer.MODE_SNAPSHOT});  
+       // app.countyLayer = new FeatureLayer('http://maps.co.pueblo.co.us/outside/rest/services/internal_map_services/pueblo_county_counties_zipcodes_municipalities/MapServer/1',{mode: FeatureLayer.MODE_SNAPSHOT});  
         
           
-        app.map.addLayer(app.zipCodeLayer);
+       // app.map.addLayer(app.zipCodeLayer);
+        
         app.Polygon = Polygon;
         app.Graphic = Graphic;
         app.SimpleFillSymbol = SimpleFillSymbol;
@@ -50,17 +51,9 @@
         app.query = new Query(); //declare query for later use in querying map layers
         app.FeatureLayer = FeatureLayer;
         app.drawingInfo = {};
-        $.get('http://maps.co.pueblo.co.us/outside/rest/services/internal_map_services/pueblo_county_counties_zipcodes_municipalities/MapServer/2?f=json').then(function(res){
-            res = $.parseJSON(res);
-            $.each(res.drawingInfo.renderer.uniqueValueInfos,function(index,value){
-                
-                
-                app.drawingInfo[value.label] = value.symbol.color;
-                
-            });
-        
-            
-        }); //end of drawingInfo JSON fetch
+        app.layers = {};
+          
+      //  loadDrawingInfo();
           
         
         
@@ -71,27 +64,77 @@
     var menu = "";
 
     $(document).ready(function() {
-        
+        loadLayers()
         loadFilters();
         
         $('.menu-link').bigSlide();
      
-        $('.map-layers input').click(layerToggle);
+        
         
         $('.filter input').click(queryDocuments);
         $('.options input').click(queryDocuments);
         $('.menu-link').click(showResultsPanel);
-
+        $(window).resize(fixAfterResize);
     });
 
+    function loadDrawingInfo(mapLayer){
+    
+        $.get(mapLayer.node.url + '?f=json').then(function(res){
+            res = $.parseJSON(res);
+            console.log(res);
+            $.each(res.drawingInfo.renderer.uniqueValueInfos,function(index,value){
+                if(app.drawingInfo[mapLayer.node.class] == undefined){
+                    app.drawingInfo[mapLayer.node.class] = {};
+                }
+                
+                app.drawingInfo[mapLayer.node.class][value.label] = value.symbol.color;
+                
+            });
+        
+            
+        }); //end of drawingInfo JSON fetch
+    
+    }
+
+    function loadLayers(){
+        var termURL = "/map-layers"
+        $.get(termURL).then(function(res){
+            
+           // console.log(res);
+            $.each(res.nodes,function(index,value){
+            console.log(value);
+                    app.layers[value.node.class] = new app.FeatureLayer(value.node.url,{mode: app.FeatureLayer.MODE_SNAPSHOT});
+                    app.layers[value.node.class].field_to_query = value.node.query_field;
+                console.log(app.layers[value.node.class]);
+                    var output =  '<li><label><input type="radio" name="layer" class="' + value.node.class + '" > ' + value.node.title + ' </label></li>';
+                    $('.sub-menu.map-layers ul').append(output);
+            
+                
+                
+                loadDrawingInfo(value);
+            });
+            
+            $('.map-layers input').click(layerToggle);
+        });
+    
+    }
 
 
+    function fixAfterResize(){
+        
+        showResultsPanel();
+    
+    }
 
-
+    function clearGraphics(){
+    
+        app.map.graphics.clear();
+    
+    }
 
     function queryDocuments(){
         hideResultsPanel(); //make sure results disappear when messing with filter options
-        app.map.graphics.clear();
+        clearGraphics();
 
         var termURL = makeQueryURLForDocuments(false); 
         console.log(termURL);
@@ -103,39 +146,12 @@
           console.log(queryString);
            
             app.query.where = queryString;
-            
-            app.zipCodeLayer.selectFeatures(app.query, app.FeatureLayer.SELECTION_NEW, function(results){
-                
-                
-                $.each(results,function(index,value){
-                   // console.log(app.drawingInfo[value.attributes.ID]);
-                    var shadeFactor = .70; //change this to make darker or lighter
-                    var rgbOutline = [Math.round(app.drawingInfo[value.attributes.ID][0] * shadeFactor), Math.round(app.drawingInfo[value.attributes.ID][1] * shadeFactor),Math.round(app.drawingInfo[value.attributes.ID][2] * shadeFactor), 1];
-                    var rgbFill = [app.drawingInfo[value.attributes.ID][0],app.drawingInfo[value.attributes.ID][1],app.drawingInfo[value.attributes.ID][2], 0.70];
-                    
-                    var polygonSymbol = new app.SimpleFillSymbol(app.SimpleFillSymbol.STYLE_SOLID,
-                        new app.SimpleLineSymbol(app.SimpleLineSymbol.STYLE_SOLID,
-                        new app.Color(rgbOutline),4),new app.Color(rgbFill));
-                    
-                    
-                    var graphic = new app.Graphic(value.geometry, polygonSymbol);
-                    
-                    graphic.locationID = value.attributes.ID; //this lets us bypass querying the map service again for this attribute
-                    
-                    app.map.graphics.add(graphic);
-                    
-                    if(graphicAddedToMap == false){ //ensures click handler only fires once
-                        graphicAddedToMap = true;
-                         app.map.graphics.on("click",function(evt){
-                            //console.log(evt);
-                            app.map.graphics.disableMouseEvents(); //prevents users from sending multiple ajax requests by double-clicking
-                            getDocumentsForDisplay(evt);
-                             
-                             
-                         }); 
-                    }
-                });
-                console.log(app.map.graphics.graphics.length);
+            var layer = $('.map-layers ul li input:checked').attr('class'); //identifies which layer to be queried
+            console.log(layer);
+            console.log(app.layers[layer]);
+            app.layers[layer].selectFeatures(app.query, app.FeatureLayer.SELECTION_NEW, function(results){
+                console.log(results);
+                processGraphics(results, layer, app.layers[layer].field_to_query);
             });
             
 //            console.log(app.map);
@@ -145,6 +161,41 @@
     }
     
     
+    function processGraphics(results, layer, field){
+    console.log(app);
+        console.log(layer);
+        console.log(field);
+        $.each(results,function(index,value){
+            console.log(value);
+           // console.log(app.drawingInfo[value.attributes.ID]);
+            var shadeFactor = .70; //change this to make darker or lighter
+            var rgbOutline = [Math.round(app.drawingInfo[layer][value.attributes[field]][0] * shadeFactor), Math.round(app.drawingInfo[layer][value.attributes[field]][1] * shadeFactor),Math.round(app.drawingInfo[layer][value.attributes[field]][2] * shadeFactor), 1];
+            var rgbFill = [app.drawingInfo[layer][value.attributes[field]][0],app.drawingInfo[layer][value.attributes[field]][1],app.drawingInfo[layer][value.attributes[field]][2], 0.70];
+
+            var polygonSymbol = new app.SimpleFillSymbol(app.SimpleFillSymbol.STYLE_SOLID,
+                new app.SimpleLineSymbol(app.SimpleLineSymbol.STYLE_SOLID,
+                new app.Color(rgbOutline),4),new app.Color(rgbFill));
+
+
+            var graphic = new app.Graphic(value.geometry, polygonSymbol);
+
+            graphic.locationID = value.attributes.field; //this lets us bypass querying the map service again for this attribute
+
+            app.map.graphics.add(graphic);
+
+            if(graphicAddedToMap == false){ //ensures click handler only fires once
+                graphicAddedToMap = true;
+                 app.map.graphics.on("click",function(evt){
+                    //console.log(evt);
+                    app.map.graphics.disableMouseEvents(); //prevents users from sending multiple ajax requests by double-clicking
+                    getDocumentsForDisplay(evt);
+
+
+                 }); 
+            }
+        });
+    
+    }
 
 
     function showResultsPanel(){
@@ -374,10 +425,15 @@
 
     function makeLayerQuery(json){
        // console.log(json);
-        var query = "ID like '%asdrweasdfjkl%' ";
+        //app.layers[value.node.class].field_to_query
+        var layer = $('.map-layers ul li input:checked').attr('class');
+        
+        var field = app.layers[layer].field_to_query;
+        
+        var query = field + " like '%asdrweasdfjkl%' ";
         $.each(json.nodes,function(index,value){
 //            console.log(value.node);
-            query += " or ID like '%" + value.node.location + "%' ";
+            query += " or " + field + " like '%" + value.node.location + "%' ";
         });
 //        console.log(query);
         return query;
@@ -390,30 +446,22 @@
 
 
     function layerToggle(){
+        clearGraphics();
         hideResultsPanel();
-        try{app.map.removeLayer(app.zipCodeLayer);}catch(e){}
-        try{app.map.removeLayer(app.municipalitiesLayer);}catch(e){}
-        try{app.map.removeLayer(app.countyLayer);}catch(e){}
+//        try{app.map.removeLayer(app.zipCodeLayer);}catch(e){}
+//        try{app.map.removeLayer(app.municipalitiesLayer);}catch(e){}
+//        try{app.map.removeLayer(app.countyLayer);}catch(e){}
         
-     
-        var layers = $('.map-layers input').get();
+        
+        var layers = $('.map-layers input:not(:checked)').get();
         
         $.each(layers, function(index,value){
-               if(value.checked){
-                    switch(value.className){
-                        case 'zip-codes':
-                            app.map.addLayer(app.zipCodeLayer);
-                            break;
-                        case 'municipalities':
-                            app.map.addLayer(app.municipalitiesLayer);
-                            break;
-                        case 'countywide':
-                            app.map.addLayer(app.countyLayer);
-                            break;                
-
-                    }
-               }
+            try{app.map.removeLayer(app.layers[value.className]);}catch(e){}
         });
+        
+        var layer = $('.map-layers ul li input:checked').attr('class'); //identifies which layer to be queried
+         app.map.addLayer(app.layers[layer]);
+        
     }
 
 
@@ -469,5 +517,5 @@
         
         
         $('div.sub-menu.filter').append(menu);
-    
+        //$('#menu-options').accordion({ header: "h5", collapsible: true, active: true });
     }

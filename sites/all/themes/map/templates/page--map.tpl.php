@@ -22,9 +22,11 @@
         <h5>Select A Layer</h5>
             <div class="sub-menu map-layers">
                 <ul>
-                    <li><label><input type="checkbox" class="zip-codes" checked="checked"> Zip Codes </label></li>
-                    <li><label><input type="checkbox" class="municipalities"> Municipalities </label></li>
-                    <li><label><input type="checkbox" class="countywide"> Countywide </label></li>
+<!--
+                    <li><label><input type="radio" name="layer" class="zipCodeLayer" checked="checked"> Zip Codes </label></li>
+                    <li><label><input type="radio" name="layer" class="municipalities"> Municipalities </label></li>
+                    <li><label><input type="radio" name="layer" class="countywide"> Countywide </label></li>
+-->
                 </ul>
             </div>
         <h5>Filter Results</h5>
