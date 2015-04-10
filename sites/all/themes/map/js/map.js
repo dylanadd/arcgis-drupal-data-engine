@@ -86,8 +86,10 @@
                 if(app.drawingInfo[mapLayer.node.class] == undefined){
                     app.drawingInfo[mapLayer.node.class] = {};
                 }
-                
-                app.drawingInfo[mapLayer.node.class][value.label] = value.symbol.color;
+                var proper_label = sanitizeString(value.label);
+                   
+              //  console.log(proper_label);
+                app.drawingInfo[mapLayer.node.class][proper_label] = value.symbol.color;
                 
             });
         
@@ -160,13 +162,23 @@
    
     }
     
-    
+    function sanitizeString(str){
+         str = str.replace(/ /g,"_");
+         str = str.toLowerCase();
+         return str;
+    }
+
+
     function processGraphics(results, layer, field){
-    console.log(app);
+        console.log(app);
         console.log(layer);
+        
         console.log(field);
         $.each(results,function(index,value){
-            console.log(value);
+            
+            value.attributes[field] = sanitizeString(value.attributes[field]);
+            
+            console.log(value.attributes[field]);
            // console.log(app.drawingInfo[value.attributes.ID]);
             var shadeFactor = .70; //change this to make darker or lighter
             var rgbOutline = [Math.round(app.drawingInfo[layer][value.attributes[field]][0] * shadeFactor), Math.round(app.drawingInfo[layer][value.attributes[field]][1] * shadeFactor),Math.round(app.drawingInfo[layer][value.attributes[field]][2] * shadeFactor), 1];
