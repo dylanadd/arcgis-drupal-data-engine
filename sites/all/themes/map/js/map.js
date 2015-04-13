@@ -26,11 +26,13 @@
         app.map = new Map("map", {
           basemap: "topo",  //For full list of pre-defined basemaps, navigate to http://arcg.is/1JVo6Wd
           center: [-104.595337, 38.255706], // longitude, latitude
-          zoom: 13,
-          sliderPosition: "top-right"
+          zoom: 11,
+          sliderPosition: "top-right",
+            maxZoom: 14,
+            minZoom: 9
         });
           
-          console.log(app.map);
+     //     console.log(app.map);
         
         esriConfig.defaults.io.proxyUrl = "/sites/default/script/proxy.php";
         esriConfig.defaults.io.alwaysUseProxy = false;
@@ -81,7 +83,7 @@
     
         $.get(mapLayer.node.url + '?f=json').then(function(res){
             res = $.parseJSON(res);
-            console.log(res);
+         //   console.log(res);
             $.each(res.drawingInfo.renderer.uniqueValueInfos,function(index,value){
                 if(app.drawingInfo[mapLayer.node.class] == undefined){
                     app.drawingInfo[mapLayer.node.class] = {};
@@ -104,10 +106,10 @@
             
            // console.log(res);
             $.each(res.nodes,function(index,value){
-            console.log(value);
+      //      console.log(value);
                     app.layers[value.node.class] = new app.FeatureLayer(value.node.url,{mode: app.FeatureLayer.MODE_SNAPSHOT});
                     app.layers[value.node.class].field_to_query = value.node.query_field;
-                console.log(app.layers[value.node.class]);
+ //               console.log(app.layers[value.node.class]);
                     var output =  '<li><label><input type="radio" name="layer" class="' + value.node.class + '" > ' + value.node.title + ' </label></li>';
                     $('.sub-menu.map-layers ul').append(output);
             
@@ -129,10 +131,17 @@
     }
 
     function clearGraphics(){
-    
-        app.map.graphics.clear();
+        $('path').fadeOut("slow",function(){
+            app.map.graphics.clear();
+        });
+        
     
     }
+
+    function showGraphics(){
+         $('path').fadeIn("slow",function(){});
+    }
+
 
     function queryDocuments(){
         hideResultsPanel(); //make sure results disappear when messing with filter options
@@ -149,11 +158,12 @@
            
             app.query.where = queryString;
             var layer = $('.map-layers ul li input:checked').attr('class'); //identifies which layer to be queried
-            console.log(layer);
-            console.log(app.layers[layer]);
+           // console.log(layer);
+           // console.log(app.layers[layer]);
             app.layers[layer].selectFeatures(app.query, app.FeatureLayer.SELECTION_NEW, function(results){
-                console.log(results);
+             //   console.log(results);
                 processGraphics(results, layer, app.layers[layer].field_to_query);
+                showGraphics();
             });
             
 //            console.log(app.map);
@@ -170,19 +180,19 @@
 
 
     function processGraphics(results, layer, field){
-        console.log(app);
-        console.log(layer);
+      //  console.log(app);
+      //  console.log(layer);
         
-        console.log(field);
+     //   console.log(field);
         $.each(results,function(index,value){
+            var location = sanitizeString(value.attributes[field]);
+           // value.attributes[field] = sanitizeString(value.attributes[field]);
             
-            value.attributes[field] = sanitizeString(value.attributes[field]);
-            
-            console.log(value.attributes[field]);
+          //  console.log(value.attributes[field]);
            // console.log(app.drawingInfo[value.attributes.ID]);
             var shadeFactor = .70; //change this to make darker or lighter
-            var rgbOutline = [Math.round(app.drawingInfo[layer][value.attributes[field]][0] * shadeFactor), Math.round(app.drawingInfo[layer][value.attributes[field]][1] * shadeFactor),Math.round(app.drawingInfo[layer][value.attributes[field]][2] * shadeFactor), 1];
-            var rgbFill = [app.drawingInfo[layer][value.attributes[field]][0],app.drawingInfo[layer][value.attributes[field]][1],app.drawingInfo[layer][value.attributes[field]][2], 0.70];
+            var rgbOutline = [Math.round(app.drawingInfo[layer][location][0] * shadeFactor), Math.round(app.drawingInfo[layer][location][1] * shadeFactor),Math.round(app.drawingInfo[layer][location][2] * shadeFactor), 1];
+            var rgbFill = [app.drawingInfo[layer][location][0],app.drawingInfo[layer][location][1],app.drawingInfo[layer][location][2], 0.70];
 
             var polygonSymbol = new app.SimpleFillSymbol(app.SimpleFillSymbol.STYLE_SOLID,
                 new app.SimpleLineSymbol(app.SimpleLineSymbol.STYLE_SOLID,
@@ -191,7 +201,7 @@
 
             var graphic = new app.Graphic(value.geometry, polygonSymbol);
 
-            graphic.locationID = value.attributes.field; //this lets us bypass querying the map service again for this attribute
+            graphic.locationID = value.attributes[field]; //this lets us bypass querying the map service again for this attribute
 
             app.map.graphics.add(graphic);
 
@@ -206,7 +216,7 @@
                  }); 
             }
         });
-    
+        
     }
 
 
@@ -215,15 +225,15 @@
         
         var menuWidth = $("nav#menu").width();
         
-        console.log( bodyWidth);
-        console.log( menuWidth);
+      //  console.log( bodyWidth);
+      //  console.log( menuWidth);
         if($('nav#menu').hasClass("open")){
             $(".push.wrap").css("width",(bodyWidth - menuWidth));
         
         } else {
             $(".push.wrap").css("width",bodyWidth );
         }
-         console.log($(".push.wrap").css("width"));
+        // console.log($(".push.wrap").css("width"));
        
     }
 
@@ -240,7 +250,7 @@
     }
 
     function getDocumentsForDisplay(evt){
-       
+     //  console.log(evt);
         hideResultsPanel();
 
         var termURL = makeQueryURLForDocuments(true,evt.graphic.locationID);
@@ -404,6 +414,46 @@
             });
             termURL = termURL.substr(0,termURL.length - 1); //remove final + or ,
         
+            
+            
+            
+            
+            
+            var urlx = "/json/";
+            
+            var lists = $('.filter ul').get();
+            
+            console.log(lists);
+            $.each(lists, function(index,value){
+                
+                
+                if($("input:checkbox:checked",value).length > 0){
+                    
+                    
+                    $.each($("input",value),function(index2,value2){
+                
+                        if($(value2)[0].checked){
+                            
+                            urlx += value2.className + "+";
+                        
+                        }
+                
+                    });
+                   urlx = urlx.substr(0,urlx.length - 1); //remove final + or ,
+                   urlx += "/";
+                }
+                
+                
+             
+            });
+            
+            
+            urlx = urlx.substr(0,urlx.length - 1); //remove final + or ,
+                console.log(urlx);
+            termURL = urlx;
+            
+            
+            
         } else {
             termURL += "document/";
             $.each(inputs, function(index,value){
@@ -445,7 +495,7 @@
         var query = field + " like '%asdrweasdfjkl%' ";
         $.each(json.nodes,function(index,value){
 //            console.log(value.node);
-            query += " or " + field + " like '%" + value.node.location + "%' ";
+            query += " or " + field + " = '" + value.node.location + "' ";
         });
 //        console.log(query);
         return query;
@@ -460,27 +510,26 @@
     function layerToggle(){
         clearGraphics();
         hideResultsPanel();
-//        try{app.map.removeLayer(app.zipCodeLayer);}catch(e){}
-//        try{app.map.removeLayer(app.municipalitiesLayer);}catch(e){}
-//        try{app.map.removeLayer(app.countyLayer);}catch(e){}
+
         
         
         var layers = $('.map-layers input:not(:checked)').get();
         
         $.each(layers, function(index,value){
-            try{app.map.removeLayer(app.layers[value.className]);}catch(e){}
+        //    try{app.map.removeLayer(app.layers[value.className]);}catch(e){}
         });
         
         var layer = $('.map-layers ul li input:checked').attr('class'); //identifies which layer to be queried
-         app.map.addLayer(app.layers[layer]);
+       //  app.map.addLayer(app.layers[layer]);
         
+        queryDocuments();
     }
 
 
 
 
     function loadFilters(){
-    console.log(filterJSON);
+  //  console.log(filterJSON);
         $.each(filterJSON, function(index, value){
              if(value.name != "Location"){
                   

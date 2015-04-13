@@ -22,6 +22,7 @@ height: 100% !important;
     position: fixed;
     left: -15.625em; /*left or right and the width of your navigation panel*/
     width: 15.625em; /*should match the above value*/
+    
 }
 
 #menu{
@@ -61,7 +62,11 @@ a, a:focus {
   outline: 0 !important;
 }
 
-#menu-options{}
+#menu-options{
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
 
 .sub-menu{
   padding-left: 15px;
@@ -107,6 +112,10 @@ position: absolute;
   border-top-style: solid;
   border-color: rgb(0,40,75);
   border-width: 2px;
+/*
+    -webkit-transition: height 300ms, width 300ms ease !important; 
+    transition:  height 300ms, width 300ms ease !important;
+*/
 
 }
 
@@ -190,6 +199,12 @@ h5 span.counter{
   display: none;
 }
 
+path{
+display:none;
+}
+
+
+
 ::-webkit-scrollbar
 {
   width: 12px;  /* for vertical scrollbars */
@@ -198,9 +213,13 @@ h5 span.counter{
 
 ::-webkit-scrollbar-track
 {
-  background: rgba(0, 0, 0, 0.1);
+  background: rgb(229, 229, 229);
 }
 
+panel::-webkit-scrollbar-track
+{
+  background: rgb(0, 40, 75);
+}
 ::-webkit-scrollbar-thumb
 {
   background: rgba(0, 0, 0, 0.5);
