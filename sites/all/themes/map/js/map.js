@@ -68,7 +68,7 @@
     $(document).ready(function() {
         loadLayers()
         loadFilters();
-        
+        loadLocationTaxonomy();
         $('.menu-link').bigSlide();
      
         
@@ -78,6 +78,23 @@
         $('.menu-link').click(showResultsPanel);
         $(window).resize(fixAfterResize);
     });
+
+
+    function loadLocationTaxonomy(){
+        app.locationTaxonomy = {};
+        $.get("/taxonomy-identifier").then(function(results){
+        
+//            console.log(results);
+            $.each(results.nodes,function(index, value){
+            
+                console.log(value.node);
+                app.locationTaxonomy[sanitizeString(value.node.name)] = value.node.id;
+            });
+            console.log(app.locationTaxonomy);
+        });
+    
+    }
+
 
     function loadDrawingInfo(mapLayer){
     
@@ -252,8 +269,8 @@
     function getDocumentsForDisplay(evt){
      //  console.log(evt);
         hideResultsPanel();
-
-        var termURL = makeQueryURLForDocuments(true,evt.graphic.locationID);
+        var location = sanitizeString(evt.graphic.locationID);
+        var termURL = makeQueryURLForDocuments(true,location);
         console.log(termURL);
         
         $.get(termURL).then(function(results){
@@ -419,42 +436,45 @@
             
             
             
-            var urlx = "/json/";
-            
-            var lists = $('.filter ul').get();
-            
-            console.log(lists);
-            $.each(lists, function(index,value){
-                
-                
-                if($("input:checkbox:checked",value).length > 0){
-                    
-                    
-                    $.each($("input",value),function(index2,value2){
-                
-                        if($(value2)[0].checked){
-                            
-                            urlx += value2.className + "+";
-                        
-                        }
-                
-                    });
-                   urlx = urlx.substr(0,urlx.length - 1); //remove final + or ,
-                   urlx += "/";
-                }
-                
-                
-             
-            });
-            
-            
-            urlx = urlx.substr(0,urlx.length - 1); //remove final + or ,
-                console.log(urlx);
-            termURL = urlx;
-            
+//            var urlx = "/json/";
+//            
+//            var lists = $('.filter ul').get();
+//            
+//            console.log(lists);
+//            $.each(lists, function(index,value){
+//                
+//                
+//                if($("input:checkbox:checked",value).length > 0){
+//                    
+//                    
+//                    $.each($("input",value),function(index2,value2){
+//                
+//                        if($(value2)[0].checked){
+//                            
+//                            urlx += value2.className + "+";
+//                        
+//                        }
+//                
+//                    });
+//                   urlx = urlx.substr(0,urlx.length - 1); //remove final + or ,
+//                   urlx += "/";
+//                }
+//                
+//                
+//             
+//            });
+//            
+//            
+//            urlx = urlx.substr(0,urlx.length - 1); //remove final + or ,
+//                console.log(urlx);
+//            termURL = urlx;
+//            
             
             
         } else {
+//            console.log(app.locationTaxonomy[location]);
+          //  location = app.locationTaxonomy[location]; //convert to term id
+            
             termURL += "document/";
             $.each(inputs, function(index,value){
 
