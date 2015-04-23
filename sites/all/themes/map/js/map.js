@@ -16,13 +16,13 @@
                
           "esri/tasks/query", "esri/geometry/Polygon", "esri/graphic", "esri/symbols/SimpleFillSymbol",
           
-          "esri/symbols/SimpleLineSymbol", "esri/Color",
+          "esri/symbols/SimpleLineSymbol", "esri/Color", "esri/layers/GraphicsLayer",
                
           "dojo/domReady!"],
               
     function(Map,esriConfig,FeatureLayer,
              Query,Polygon,Graphic,SimpleFillSymbol,
-             SimpleLineSymbol,Color) {
+             SimpleLineSymbol,Color,GraphicsLayer) {
         app.map = new Map("map", {
           basemap: "topo",  //For full list of pre-defined basemaps, navigate to http://arcg.is/1JVo6Wd
           center: [-104.595337, 38.255706], // longitude, latitude
@@ -54,7 +54,10 @@
         app.FeatureLayer = FeatureLayer;
         app.drawingInfo = {};
         app.layers = {};
-          
+        app.gLayer = GraphicsLayer;
+        app.graphicsLayer =  new app.gLayer();
+        app.selectedPolygon = {};
+        app.previouslySelectedPolygon = null;
       //  loadDrawingInfo();
           
         
@@ -87,10 +90,10 @@
 //            console.log(results);
             $.each(results.nodes,function(index, value){
             
-                console.log(value.node);
+           //     console.log(value.node);
                 app.locationTaxonomy[sanitizeString(value.node.name)] = value.node.id;
             });
-            console.log(app.locationTaxonomy);
+          //  console.log(app.locationTaxonomy);
         });
     
     }
@@ -112,7 +115,7 @@
                 
             });
         
-            
+            console.log(app);
         }); //end of drawingInfo JSON fetch
     
     }
@@ -174,16 +177,18 @@
           console.log(queryString);
            
             app.query.where = queryString;
+            app.query.geometry = app.map.extent;
+            app.query.outFields = ["*"];
             var layer = $('.map-layers ul li input:checked').attr('class'); //identifies which layer to be queried
            // console.log(layer);
            // console.log(app.layers[layer]);
             app.layers[layer].selectFeatures(app.query, app.FeatureLayer.SELECTION_NEW, function(results){
-             //   console.log(results);
+                console.log(results);
                 processGraphics(results, layer, app.layers[layer].field_to_query);
                 showGraphics();
             });
             
-//            console.log(app.map);
+            console.log(app.map);
         });
         
    
@@ -194,7 +199,12 @@
          str = str.toLowerCase();
          return str;
     }
-
+    
+    function unsanitizeString(str){
+         str = str.replace("_","%20");
+         str = str.toLowerCase();
+         return str;
+    }
 
     function processGraphics(results, layer, field){
       //  console.log(app);
@@ -225,16 +235,44 @@
             if(graphicAddedToMap == false){ //ensures click handler only fires once
                 graphicAddedToMap = true;
                  app.map.graphics.on("click",function(evt){
-                    //console.log(evt);
+//                   try{ app.graphicsLayer.clear();}catch(e){}
                     app.map.graphics.disableMouseEvents(); //prevents users from sending multiple ajax requests by double-clicking
                     getDocumentsForDisplay(evt);
-
-
+//                    highlightPolygon(evt);
+//                    app.map.addLayer(app.graphicsLayer);
                  }); 
+                
             }
         });
-        
+        $('path').click(highlightPolygon);
     }
+
+    function highlightPolygon(path){
+        if(app.previouslySelectedPolygon == null){
+            app.previouslySelectedPolygon = {};
+            app.previouslySelectedPolygon.polygon = $(path.currentTarget);
+            app.previouslySelectedPolygon.color = $(path.currentTarget).attr("fill");
+        } else {
+            app.previouslySelectedPolygon.polygon = app.selectedPolygon.polygon;
+            app.previouslySelectedPolygon.color = app.selectedPolygon.color;
+            
+            $('path[fill="rgb(255,0,0)"]').attr("fill",app.selectedPolygon.color);
+            
+        }
+        
+        app.selectedPolygon.polygon = $(path.currentTarget);
+        app.selectedPolygon.color = $(path.currentTarget).attr("fill");
+        
+//        console.log(app);
+//        console.log($(path.currentTarget));
+        app.previouslySelectedPolygon.polygon.attr("fill",app.previouslySelectedPolygon.color);
+        console.log($('path[fill="' + $(path.currentTarget).attr("fill") + '"]'));
+        $('path[fill="' + $(path.currentTarget).attr("fill") + '"]').attr("fill","rgb(255,0,0)");
+       // $(path.currentTarget).attr("fill","rgb(255,0,0)");
+        
+       
+    }
+
 
 
     function showResultsPanel(){
@@ -490,11 +528,10 @@
                 }
 
             });
+            
             termURL = termURL.substr(0,termURL.length - 1); //remove final + or ,
-            termURL += "/" + location;
-        
-        
-        
+            termURL += "/" + unsanitizeString(location);
+
         
         }
         
