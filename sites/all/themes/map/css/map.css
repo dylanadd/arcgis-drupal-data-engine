@@ -57,7 +57,7 @@ color:white;
   top: 0px;
 }
 
-a, a:focus {
+a, a:focus, input {
   text-decoration: none;
   outline: 0 !important;
 }
@@ -225,7 +225,7 @@ panel::-webkit-scrollbar-track
   background: rgba(0, 0, 0, 0.5);
 }
 
-.search-database input {
+.search-database input, .reset input, .help input {
   background-color: #FFF;
   background-color: rgba(255,255,255,0.95);
   -moz-border-radius: 5px;
@@ -238,6 +238,13 @@ panel::-webkit-scrollbar-track
   cursor: pointer;
   border-style:solid;
   border-color: black;
-  margin-left: 35px;
-  width: 122px;
+  margin-left: 42px;
+  width: 155px;
+  padding: 5px;
+  margin-top: 8px;
+}
+
+.search-database input:hover, .reset input:hover, .help input:hover {
+      background-color: rgba(205, 205, 205, 0.95);
+      background-color: rgb(205, 205, 205);
 }

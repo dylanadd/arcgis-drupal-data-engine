@@ -76,13 +76,22 @@
      
         
         
-        $('.filter input').click(queryDocuments);
-        $('.options input').click(queryDocuments);
+       // $('.filter input').click(queryDocuments);
+        //$('.options input').click(queryDocuments);
         $('.search-database input').click(queryDocuments);
+        $('.reset input').click(clearResults);
+        $('.help input').click(function(){
+            window.open('/help', '_blank');
+        });
         $('.menu-link').click(showResultsPanel);
         $(window).resize(fixAfterResize);
     });
 
+    
+    function clearResults(){
+        hideResultsPanel(); //make sure results disappear when messing with filter options
+        clearGraphics();
+    }
 
     function loadLocationTaxonomy(){
         app.locationTaxonomy = {};
@@ -167,30 +176,37 @@
     function queryDocuments(){
         hideResultsPanel(); //make sure results disappear when messing with filter options
         clearGraphics();
+        
+            var termURL = makeQueryURLForDocuments(false); 
+            console.log(termURL);
 
-        var termURL = makeQueryURLForDocuments(false); 
-        console.log(termURL);
-       
-  
-        $.get(termURL).then(function(res){
- 
-          var queryString =  makeLayerQuery(res);
-          console.log(queryString);
-           
-            app.query.where = queryString;
-            app.query.geometry = app.map.extent;
-            app.query.outFields = ["*"];
-            var layer = $('.map-layers ul li input:checked').attr('class'); //identifies which layer to be queried
-           // console.log(layer);
-           // console.log(app.layers[layer]);
-            app.layers[layer].selectFeatures(app.query, app.FeatureLayer.SELECTION_NEW, function(results){
-                console.log(results);
-                processGraphics(results, layer, app.layers[layer].field_to_query);
-                showGraphics();
+
+            $.get(termURL).then(function(res){
+
+              var queryString =  makeLayerQuery(res);
+              console.log(queryString);
+
+                app.query.where = queryString;
+                app.query.geometry = app.map.extent;
+                app.query.outFields = ["*"];
+                var layer = $('.map-layers ul li input:checked').attr('class'); //identifies which layer to be queried
+               // console.log(layer);
+               // console.log(app.layers[layer]);
+                app.layers[layer].selectFeatures(app.query, app.FeatureLayer.SELECTION_NEW, function(results){
+                    console.log(results);
+                    processGraphics(results, layer, app.layers[layer].field_to_query);
+                    showGraphics();
+
+                    if(results.length == 0){
+                        alert("Sorry, no search results were found. Try modifying your seach filters and search again.");
+
+                    }
+
+                });
+
+                console.log(app.map);
             });
-            
-            console.log(app.map);
-        });
+        
         
    
     }
@@ -245,7 +261,7 @@
                 
             }
         });
-        $('path').click(highlightPolygon);
+      //  $('path').click(highlightPolygon);
     }
 
     function highlightPolygon(path){
@@ -305,16 +321,33 @@
     
     }
 
+    function filterResults(results, location){
+        console.log(results);
+       var filteredResults = {};
+        filteredResults.nodes = [];
+        $.each(results.nodes, function(index,value){
+        
+            if(sanitizeString(value.node.location) == location){
+                
+                filteredResults.nodes.push(value);
+            
+            }
+            
+            
+        });
+        return filteredResults;
+    }
+
     function getDocumentsForDisplay(evt){
      //  console.log(evt);
         hideResultsPanel();
         var location = sanitizeString(evt.graphic.locationID);
         var termURL = makeQueryURLForDocuments(true,location);
         console.log(termURL);
-        
+        console.log(location);
         $.get(termURL).then(function(results){
-          //  console.log(results);
-            
+         //   console.log(results);
+           results =  filterResults(results, location);
              var year;
              var sortedResults = {};
              $.each(results.nodes,function(index,value){
@@ -343,8 +376,9 @@
                 var output = "";
             
                 $.each(value,function(index2,value2){
-                   console.log(index2);
-                   console.log(value2);
+                 //  console.log(index2);
+                 //  console.log(value2);
+                if(sanitizeString(value2.node.location) == location){    
                    resultCount++;
                   
               //  console.log(value);
@@ -352,7 +386,7 @@
                 
                 
                 
-                output += '<h5><span class="title">' + value2.node.title + '</span><span class="counter">' + (resultCount) + ' of ' + results.nodes.length;
+                output += '<h5><span class="title">' + value2.node.title + ' - ' + value2.node.location + '</span><span class="counter">' + (resultCount) + ' of ' + results.nodes.length;
                     
                 if(results.nodes.length == 1){
                     output += ' Result</span></h5>';
@@ -377,7 +411,7 @@
                        + '</div>'; //end of wrapper
                 
           
-                   
+                }//end of if
                    
                
                });
@@ -403,10 +437,10 @@
             $.each(results.nodes,function(index,value){
               //  console.log(value);
                 
+                if(sanitizeString(value.node.location) == location){   
                 
                 
-                
-                output += '<h5><span class="title">' + value.node.title + '</span><span class="counter">' + (index + 1) + ' of ' + results.nodes.length;
+                output += '<h5><span class="title">' + value.node.title +  ' - ' + value.node.location + '</span><span class="counter">' + (index + 1) + ' of ' + results.nodes.length;
                     
                 if(results.nodes.length == 1){
                     output += ' Result</span></h5>';
@@ -429,7 +463,7 @@
                 
                 output += '</ul></div></div>' //end links div
                        + '</div>'; //end of wrapper
-                
+            }//end of if
             });
             
             $(".results").append(output);
@@ -450,99 +484,80 @@
 
 
     function makeQueryURLForDocuments(isLocation,location){
-          var inputs = $('.filter input').get();
+        var inputs = $('.filter ul:not(.year, .formats) input:checked').get();
         var termURL = "/";
         if(!isLocation){
             termURL += "json/";
-            $.each(inputs, function(index,value){
-                console.log($(value)[0].parentElement.parentElement.parentElement.className);
-                if(value.checked && $(value)[0].parentElement.parentElement.parentElement.className != "year" && $(value)[0].parentElement.parentElement.parentElement.className != "formats"){
-                   
-                  
-                   
-                        termURL +=  value.className + '+' ;
-                    
+            
+             if(inputs.length == 0){
+                termURL += "*/"
+            } else{
+            
+                $.each(inputs, function(index,value){
+                    console.log($(value)[0].parentElement.parentElement.parentElement.className);
+                    if(value.checked && $(value)[0].parentElement.parentElement.parentElement.className != "year" && $(value)[0].parentElement.parentElement.parentElement.className != "formats"){
 
 
-                }
 
-            });
+                            termURL +=  value.className + '+' ;
+
+
+
+                    }
+
+                });
+            }
             termURL = termURL.substr(0,termURL.length - 1); //remove final + or ,
-        
+            console.log("input 1: " + termURL);
              termURL += "/";
-            var inputs2 = $('.filter .year input').get();
+            var inputs2 = $('.filter .year input:checked').get();
             console.log(inputs2);
-            $.each(inputs2, function(index,value){
+            
+            if(inputs2.length == 0){
+                termURL += "*/";
+            } else{
+                $.each(inputs2, function(index,value){
 
-                if(value.checked){
-                    
-                        termURL +=  value.className + '+' ;
-                    
+                    if(value.checked){
+
+                            termURL +=  value.className + '+' ;
 
 
-                }
 
-            });
+                    }
+
+                });
+            }
             termURL = termURL.substr(0,termURL.length - 1); //remove final + or ,
             
-            
+            console.log("input 2: " + termURL);
             
             
             termURL += "/";
-            var inputs3 = $('.filter .formats input').get();
+            var inputs3 = $('.filter .formats input:checked').get();
             console.log(inputs3);
-            $.each(inputs3, function(index,value){
+             if(inputs3.length == 0){
+                termURL += "*/";
+            } else{
+                $.each(inputs3, function(index,value){
 
-                if(value.checked){
-                    
-                        termURL +=  value.className + '+' ;
-                    
+                    if(value.checked){
+
+                            termURL +=  value.className + '+' ;
 
 
-                }
 
-            });
+                    }
+
+                });
+            }
             termURL = termURL.substr(0,termURL.length - 1); //remove final + or ,
             
-            
+            console.log("input 1: " + termURL);
              console.log(termURL);
             
             
-            
-            
-//            var urlx = "/json/";
-//            
-//            var lists = $('.filter ul').get();
-//            
-//            console.log(lists);
-//            $.each(lists, function(index,value){
-//                
-//                
-//                if($("input:checkbox:checked",value).length > 0){
-//                    
-//                    
-//                    $.each($("input",value),function(index2,value2){
-//                
-//                        if($(value2)[0].checked){
-//                            
-//                            urlx += value2.className + "+";
-//                        
-//                        }
-//                
-//                    });
-//                   urlx = urlx.substr(0,urlx.length - 1); //remove final + or ,
-//                   urlx += "/";
-//                }
-//                
-//                
-//             
-//            });
-//            
-//            
-//            urlx = urlx.substr(0,urlx.length - 1); //remove final + or ,
-//                console.log(urlx);
-//            termURL = urlx;
-//            
+   
             
             
         } else {
@@ -550,53 +565,66 @@
           //  location = app.locationTaxonomy[location]; //convert to term id
             
             termURL += "document/";
-            $.each(inputs, function(index,value){
+             if(inputs.length == 0){
+                termURL += "*/";
+            } else{
+                $.each(inputs, function(index,value){
 
-                if(value.checked){
-                   
-                        termURL +=  value.className + '+' ;
-                    
+                     if(value.checked && $(value)[0].parentElement.parentElement.parentElement.className != "year" && $(value)[0].parentElement.parentElement.parentElement.className != "formats"){
 
 
-                }
 
-            });
-            
+                            termURL +=  value.className + '+' ;
+
+
+
+                    }
+
+                });
+            }
             termURL = termURL.substr(0,termURL.length - 1); //remove final + or ,
             termURL += "/" + unsanitizeString(location);
             termURL += "/";
-            var inputs2 = $('.filter .year input').get();
+            var inputs2 = $('.filter .year input:checked').get();
             console.log(inputs2);
-            $.each(inputs2, function(index,value){
+             if(inputs2.length == 0){
+                termURL += "*/";
+            } else{
+                $.each(inputs2, function(index,value){
 
-                if(value.checked){
-                    
-                        termURL +=  value.className + '+' ;
-                    
+                    if(value.checked){
+
+                            termURL +=  value.className + '+' ;
 
 
-                }
 
-            });
+                    }
+
+                });
+            }
             termURL = termURL.substr(0,termURL.length - 1); //remove final + or ,
             
             
             
             
             termURL += "/";
-            var inputs3 = $('.filter .formats input').get();
+            var inputs3 = $('.filter .formats input:checked').get();
             console.log(inputs3);
-            $.each(inputs3, function(index,value){
+             if(inputs3.length == 0){
+                termURL += "*/";
+            } else{
+                $.each(inputs3, function(index,value){
 
-                if(value.checked){
-                    
-                        termURL +=  value.className + '+' ;
-                    
+                    if(value.checked){
+
+                            termURL +=  value.className + '+' ;
 
 
-                }
 
-            });
+                    }
+
+                });
+            }
             termURL = termURL.substr(0,termURL.length - 1); //remove final + or ,
             
             

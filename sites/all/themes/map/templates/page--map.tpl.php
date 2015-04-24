@@ -34,9 +34,15 @@
             <div  class="sub-menu filter">
 
             </div>
-        <h5>Filter Options</h5>
+        <h5>Action Panel</h5>
             <div class="sub-menu optionssub-menu options">
                <div class="search-database"><input type="button" value="Search"></div>
+            </div>
+            <div class="sub-menu optionssub-menu options">
+               <div class="reset"><input type="button" value="Clear Results"></div>
+            </div>
+            <div class="sub-menu optionssub-menu options">
+               <div class="help"><input type="button" value="Help"></div>
             </div>
     </div>
     
