@@ -224,3 +224,20 @@ panel::-webkit-scrollbar-track
 {
   background: rgba(0, 0, 0, 0.5);
 }
+
+.search-database input {
+  background-color: #FFF;
+  background-color: rgba(255,255,255,0.95);
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 2px;
+  color: rgb(0,40,75);
+  font-family: arial;
+  font-size: 20px;
+  text-decoration: none;
+  cursor: pointer;
+  border-style:solid;
+  border-color: black;
+  margin-left: 35px;
+  width: 122px;
+}

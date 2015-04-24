@@ -78,6 +78,7 @@
         
         $('.filter input').click(queryDocuments);
         $('.options input').click(queryDocuments);
+        $('.search-database input').click(queryDocuments);
         $('.menu-link').click(showResultsPanel);
         $(window).resize(fixAfterResize);
     });
@@ -138,7 +139,7 @@
                 loadDrawingInfo(value);
             });
             
-            $('.map-layers input').click(layerToggle);
+           // $('.map-layers input').click(layerToggle);
         });
     
     }
@@ -454,14 +455,13 @@
         if(!isLocation){
             termURL += "json/";
             $.each(inputs, function(index,value){
-
-                if(value.checked){
-                    console.log($('.match-all')[0].checked);
-                    if($('.match-all')[0].checked){
-                        termURL +=  value.className + ',' ;
-                    } else {
+                console.log($(value)[0].parentElement.parentElement.parentElement.className);
+                if(value.checked && $(value)[0].parentElement.parentElement.parentElement.className != "year" && $(value)[0].parentElement.parentElement.parentElement.className != "formats"){
+                   
+                  
+                   
                         termURL +=  value.className + '+' ;
-                    }
+                    
 
 
                 }
@@ -469,7 +469,43 @@
             });
             termURL = termURL.substr(0,termURL.length - 1); //remove final + or ,
         
+             termURL += "/";
+            var inputs2 = $('.filter .year input').get();
+            console.log(inputs2);
+            $.each(inputs2, function(index,value){
+
+                if(value.checked){
+                    
+                        termURL +=  value.className + '+' ;
+                    
+
+
+                }
+
+            });
+            termURL = termURL.substr(0,termURL.length - 1); //remove final + or ,
             
+            
+            
+            
+            termURL += "/";
+            var inputs3 = $('.filter .formats input').get();
+            console.log(inputs3);
+            $.each(inputs3, function(index,value){
+
+                if(value.checked){
+                    
+                        termURL +=  value.className + '+' ;
+                    
+
+
+                }
+
+            });
+            termURL = termURL.substr(0,termURL.length - 1); //remove final + or ,
+            
+            
+             console.log(termURL);
             
             
             
@@ -517,12 +553,9 @@
             $.each(inputs, function(index,value){
 
                 if(value.checked){
-                    console.log($('.match-all')[0].checked);
-                    if($('.match-all')[0].checked){
-                        termURL +=  value.className + ',' ;
-                    } else {
+                   
                         termURL +=  value.className + '+' ;
-                    }
+                    
 
 
                 }
@@ -531,12 +564,47 @@
             
             termURL = termURL.substr(0,termURL.length - 1); //remove final + or ,
             termURL += "/" + unsanitizeString(location);
+            termURL += "/";
+            var inputs2 = $('.filter .year input').get();
+            console.log(inputs2);
+            $.each(inputs2, function(index,value){
 
-        
+                if(value.checked){
+                    
+                        termURL +=  value.className + '+' ;
+                    
+
+
+                }
+
+            });
+            termURL = termURL.substr(0,termURL.length - 1); //remove final + or ,
+            
+            
+            
+            
+            termURL += "/";
+            var inputs3 = $('.filter .formats input').get();
+            console.log(inputs3);
+            $.each(inputs3, function(index,value){
+
+                if(value.checked){
+                    
+                        termURL +=  value.className + '+' ;
+                    
+
+
+                }
+
+            });
+            termURL = termURL.substr(0,termURL.length - 1); //remove final + or ,
+            
+            
+             console.log(termURL);
         }
         
         
-        //console.log(termURL);
+       
         return termURL;
     }
 
@@ -579,7 +647,7 @@
         var layer = $('.map-layers ul li input:checked').attr('class'); //identifies which layer to be queried
        //  app.map.addLayer(app.layers[layer]);
         
-        queryDocuments();
+     //   queryDocuments();
     }
 
 
@@ -598,7 +666,7 @@
                         
                      if(Object.size(value2.children) > 0){
                             hasChildren = true;
-                            menu += '<div class="category">By ' + value2.parentname + '</div><ul>';
+                            menu += '<div class="category">By ' + value2.parentname + '</div><ul class="'  + value2.parentname.toLowerCase() +  '">';
 
                             $.each(value2.children,function(index3,value3){
                               menu += ' <li><label><input type="checkbox" class="' + value3.tid + '">' + value3.name + ' </label></li>';
@@ -621,7 +689,7 @@
                     });
                  
                  if(menuNoChildren != ""){
-                        menu += '<div class="category">By ' + value.name + '</div><ul>';
+                        menu += '<div class="category '  + value.name.toLowerCase() +  '">By ' + value.name + '</div><ul  class="'  + value.name.toLowerCase() +  '">';
                         menu += menuNoChildren;
                         menu += '</ul>';
                      }
