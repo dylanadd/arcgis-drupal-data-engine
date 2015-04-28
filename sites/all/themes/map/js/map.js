@@ -80,7 +80,7 @@
         $('.search-database input').click(queryDocuments);
         $('.reset input').click(clearResults);
         $('.help input').click(function(){
-            window.open('/help', '_blank');
+            window.open('/opendata/help', '_blank');
         });
         $('.menu-link').click(showResultsPanel);
         $(window).resize(fixAfterResize);
@@ -94,7 +94,7 @@
 
     function loadLocationTaxonomy(){
         app.locationTaxonomy = {};
-        $.get("/taxonomy-identifier").then(function(results){
+        $.get("/opendata/taxonomy-identifier").then(function(results){
         
 //            console.log(results);
             $.each(results.nodes,function(index, value){
@@ -130,7 +130,7 @@
     }
 
     function loadLayers(){
-        var termURL = "/map-layers"
+        var termURL = "/opendata/map-layers"
         $.get(termURL).then(function(res){
             
            // console.log(res);
@@ -494,7 +494,7 @@
 
     function makeQueryURLForDocuments(isLocation,location){
         var inputs = $('.filter ul:not(.year, .formats) input:checked').get();
-        var termURL = "/";
+        var termURL = "/opendata/";
         if(!isLocation){
             termURL += "json/";
             

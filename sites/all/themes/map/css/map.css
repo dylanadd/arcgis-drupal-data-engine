@@ -27,6 +27,7 @@ height: 100% !important;
 
 #menu{
   background: rgba(0,40,75,0.95);
+    background:rgb(0,40,75);
   z-index: 40;
     color:white;
 }

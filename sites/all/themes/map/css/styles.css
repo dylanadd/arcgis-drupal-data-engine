@@ -20,3 +20,24 @@
 /* SMACSS theme rules */
 /* @import "theme-A.css"; */
 /* @import "theme-B.css"; */
+
+body.node-type-basic-page #page{
+  border-style: solid;
+  border-width: 1px;
+  padding: 31px;
+  margin-top: 52px;
+ background-color: white;
+}
+body.node-type-basic-page{
+background:rgba(0,40,75,0.95);
+background:rgb(0,40,75);
+
+}
+
+body.node-type-basic-page h1.page__title {
+font-size: 1.5em !important;
+}
+
+body.node-type-basic-page a{
+text-decoration: none;
+}
