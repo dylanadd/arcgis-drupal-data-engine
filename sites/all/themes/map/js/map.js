@@ -76,8 +76,7 @@
      
         
         
-       // $('.filter input').click(queryDocuments);
-        //$('.options input').click(queryDocuments);
+      
         $('.search-database input').click(queryDocuments);
         $('.reset input').click(clearResults);
         $('.help input').click(function(){
@@ -172,11 +171,21 @@
          $('path').fadeIn("slow",function(){});
     }
 
+    function checkIfLayerSelected(){
+     
+     if( $('.map-layers input:checked').length < 1 ){
+        alert("Please select a layer before searching. (Use the menu to the left.)");
+        return false;
+     } else {
+        return true;
+     }
+    
+    }
 
     function queryDocuments(){
         hideResultsPanel(); //make sure results disappear when messing with filter options
         clearGraphics();
-        
+       if( checkIfLayerSelected()){
             var termURL = makeQueryURLForDocuments(false); 
             console.log(termURL);
 
@@ -206,7 +215,7 @@
 
                 console.log(app.map);
             });
-        
+    }
         
    
     }
